@@ -12,6 +12,8 @@ export default function HomePage() {
   const [results, setResults] = useState(null);
   const [solarPanels, setSolarPanels] = useState(0);
   const [sunCondition, setSunCondition] = useState('sunny');
+  const [hasGenerator, setHasGenerator] = useState(false);
+  const [hasDCCharger, setHasDCCharger] = useState(false);
   const isInitialMount = useRef(true);
 
   // Load from localStorage on mount
@@ -43,6 +45,15 @@ export default function HomePage() {
 
     if (savedSunCondition) {
       setSunCondition(savedSunCondition);
+    }
+
+    const savedHasGenerator = localStorage.getItem('rvCalculator_hasGenerator');
+    const savedHasDCCharger = localStorage.getItem('rvCalculator_hasDCCharger');
+    if (savedHasGenerator) {
+      setHasGenerator(savedHasGenerator === 'true');
+    }
+    if (savedHasDCCharger) {
+      setHasDCCharger(savedHasDCCharger === 'true');
     }
   }, []);
 
@@ -76,10 +87,10 @@ export default function HomePage() {
         };
       });
 
-      // Default charging config: 50A Orion XS and generator
+      // Charging config based on user selections
       const chargingConfig = {
-        orionAmps: 50,
-        hasGenerator: true
+        orionAmps: hasDCCharger ? 50 : 0,
+        hasGenerator: hasGenerator
       };
 
       // Solar config based on slider
@@ -100,7 +111,7 @@ export default function HomePage() {
     } catch (e) {
       console.error('Error calculating results:', e);
     }
-  }, [selectedAppliances, usageData, solarPanels, sunCondition]);
+  }, [selectedAppliances, usageData, solarPanels, sunCondition, hasGenerator, hasDCCharger]);
 
   const handleSelectionChange = (selected) => {
     setSelectedAppliances(selected);
@@ -122,16 +133,32 @@ export default function HomePage() {
     localStorage.setItem('rvCalculator_sunCondition', condition);
   };
 
+  const handleGeneratorToggle = () => {
+    const newValue = !hasGenerator;
+    setHasGenerator(newValue);
+    localStorage.setItem('rvCalculator_hasGenerator', newValue.toString());
+  };
+
+  const handleDCChargerToggle = () => {
+    const newValue = !hasDCCharger;
+    setHasDCCharger(newValue);
+    localStorage.setItem('rvCalculator_hasDCCharger', newValue.toString());
+  };
+
   const handleReset = () => {
     if (confirm('Are you sure you want to reset the calculator? All your selections will be cleared.')) {
       localStorage.removeItem('rvCalculator_selectedAppliances');
       localStorage.removeItem('rvCalculator_usageData');
       localStorage.removeItem('rvCalculator_solarPanels');
       localStorage.removeItem('rvCalculator_sunCondition');
+      localStorage.removeItem('rvCalculator_hasGenerator');
+      localStorage.removeItem('rvCalculator_hasDCCharger');
       setSelectedAppliances([]);
       setUsageData({});
       setSolarPanels(0);
       setSunCondition('sunny');
+      setHasGenerator(false);
+      setHasDCCharger(false);
       setResults(null);
     }
   };
@@ -253,21 +280,86 @@ export default function HomePage() {
                   <div className="impact-note">Epoch 12V 460Ah LiFePO₄</div>
                 </div>
 
-                {results.hasGenerator && results.generatorHoursPerDay > 0 && (
-                  <div className="impact-item highlight">
-                    <div className="impact-label">Generator Run Time/Day</div>
-                    <div className="impact-value large">{results.generatorHoursPerDay.toLocaleString()}h</div>
-                    <div className="impact-note">Honda EU3200i @ 120A</div>
-                  </div>
-                )}
+                {/* Generator Box - Clickable */}
+                <div 
+                  className={`impact-item ${hasGenerator ? 'highlight' : 'clickable-question'}`}
+                  onClick={handleGeneratorToggle}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {hasGenerator && results.generatorHoursPerDay > 0 ? (
+                    <>
+                      <div className="impact-label">Generator Run Time to 100%</div>
+                      <div className="impact-value large">{results.generatorHoursPerDay.toLocaleString()}h</div>
+                      <div className="impact-note">Honda EU3200i @ 120A</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="impact-label">Do you have a generator?</div>
+                      <div className="impact-note">Click to enable</div>
+                    </>
+                  )}
+                </div>
 
-                {results.orionAmps > 0 && results.driveHoursToFull > 0 && (
-                  <div className="impact-item highlight">
-                    <div className="impact-label">Drive Time to 100%</div>
-                    <div className="impact-value large">{results.driveHoursToFull.toLocaleString()}h</div>
-                    <div className="impact-note">Orion XS @ {results.orionAmps}A</div>
-                  </div>
-                )}
+                {/* DC-DC Charger Box - Clickable */}
+                <div 
+                  className={`impact-item ${hasDCCharger ? 'highlight' : 'clickable-question'}`}
+                  onClick={handleDCChargerToggle}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {hasDCCharger && results.orionAmps > 0 && results.driveHoursToFull > 0 ? (
+                    <>
+                      <div className="impact-label">Drive Time to 100%</div>
+                      <div className="impact-value large">{results.driveHoursToFull.toLocaleString()}h</div>
+                      <div className="impact-note">Orion XS @ {results.orionAmps}A</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="impact-label">Do you have a DC-DC Charger?</div>
+                      <div className="impact-note">Click to enable</div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Shore Power Charging */}
+              <div className="shore-power-section">
+                <h3 className="section-title">Shore Power Charging</h3>
+                <div className="shore-power-grid">
+                  {results.shorePowerHome15Hours > 0 && (
+                    <div className="shore-power-item">
+                      <div className="shore-power-label">120V Home Plug (15A)</div>
+                      <div className="shore-power-value">{results.shorePowerHome15Hours.toLocaleString()}h</div>
+                      <div className="shore-power-note">To charge from empty to full</div>
+                    </div>
+                  )}
+                  
+                  {results.shorePowerHome20Hours > 0 && (
+                    <div className="shore-power-item">
+                      <div className="shore-power-label">120V Home Plug (20A)</div>
+                      <div className="shore-power-value">{results.shorePowerHome20Hours.toLocaleString()}h</div>
+                      <div className="shore-power-note">To charge from empty to full</div>
+                    </div>
+                  )}
+                  
+                  {results.shorePowerCampground30Hours > 0 && (
+                    <div className="shore-power-item">
+                      <div className="shore-power-label">Campground 30A</div>
+                      <div className="shore-power-value">{results.shorePowerCampground30Hours.toLocaleString()}h</div>
+                      <div className="shore-power-note">To charge from empty to full</div>
+                    </div>
+                  )}
+                  
+                  {results.shorePowerCampground50Hours > 0 && (
+                    <div className="shore-power-item">
+                      <div className="shore-power-label">Campground 50A</div>
+                      <div className="shore-power-value">{results.shorePowerCampground50Hours.toLocaleString()}h</div>
+                      <div className="shore-power-note">To charge from empty to full</div>
+                    </div>
+                  )}
+                </div>
+                <p className="shore-power-hint">
+                  Charging times account for average load during charging. Times assume Victron Multiplus 3k inverter/charger.
+                </p>
               </div>
 
               {/* Battery Bank Details */}

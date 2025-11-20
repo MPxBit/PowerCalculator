@@ -498,6 +498,37 @@ body {
   color: rgba(255, 255, 255, 0.8);
 }
 
+.impact-item.clickable-question {
+  border: 2px dashed #999;
+  background: #f9f9f9;
+  transition: all 0.2s;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.impact-item.clickable-question:hover {
+  border-color: #333;
+  background: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.impact-item.clickable-question .impact-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.impact-item.clickable-question .impact-note {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
 /* Checkbox Label */
 .checkbox-label {
   display: flex;
@@ -1138,6 +1169,58 @@ body {
   padding: 40px;
   text-align: center;
   color: #666;
+}
+
+/* Shore Power Section */
+.shore-power-section {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.shore-power-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.shore-power-item {
+  padding: 15px;
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.shore-power-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.shore-power-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.shore-power-note {
+  font-size: 0.8rem;
+  color: #666;
+  font-style: italic;
+}
+
+.shore-power-hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 15px;
+  font-style: italic;
+  text-align: center;
 }
 
 .reset-button {
