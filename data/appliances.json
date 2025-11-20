@@ -1,0 +1,142 @@
+[
+  {
+    "id": "ac_wall_10k",
+    "label": "10k BTU Wall Mount Air Conditioner",
+    "runningWatts": 1000,
+    "startingWatts": 2000,
+    "defaultDutyCycle": 0.6,
+    "hasQuantity": false,
+    "needsDutyCycle": true
+  },
+  {
+    "id": "conture_airfry_mw",
+    "label": "Conture Convection/Air Fryer/Microwave",
+    "runningWatts": 1500,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false
+  },
+  {
+    "id": "true_induction_single",
+    "label": "Single Burner True Induction Cooktop",
+    "runningWatts": 1800,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false
+  },
+  {
+    "id": "truma_combi",
+    "label": "Truma Combi Eco Plus Furnace/Water Heater",
+    "runningWatts": 300,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false,
+    "notes": "Electrical draw is fan + electronics. Propane handles the heat load."
+  },
+  {
+    "id": "vitrifrigo_dp150i",
+    "label": "Vitrifrigo DP150i 12V Fridge/Freezer",
+    "runningWatts": 60,
+    "startingWatts": 300,
+    "defaultDutyCycle": 0.4,
+    "hasQuantity": false,
+    "needsDutyCycle": true
+  },
+  {
+    "id": "cerbo_gx",
+    "label": "Cerbo GX / GX Touch 50",
+    "runningWatts": 7,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false,
+    "hoursPerDay": 24
+  },
+  {
+    "id": "smartshunt",
+    "label": "Victron SmartShunt",
+    "runningWatts": 0.4,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false,
+    "hoursPerDay": 24
+  },
+  {
+    "id": "halo_rear_cam",
+    "label": "Halo Rearview Camera",
+    "runningWatts": 5,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false
+  },
+  {
+    "id": "maxxfan_7500k",
+    "label": "MaxxFan Deluxe (00-07500K)",
+    "runningWatts": 50,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false,
+    "notes": "Varies by fan speed"
+  },
+  {
+    "id": "porch_light",
+    "label": "Exterior Porch Light",
+    "runningWatts": 5,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false
+  },
+  {
+    "id": "side_lights",
+    "label": "3 Amber/White Side LED Lights",
+    "runningWatts": 9,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false
+  },
+  {
+    "id": "interior_leds",
+    "label": "8 Interior LED Lights",
+    "runningWatts": 24,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false
+  },
+  {
+    "id": "usb_outlets",
+    "label": "Multiple USB Charging Outlets",
+    "runningWatts": 20,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false
+  },
+  {
+    "id": "ac_outlets",
+    "label": "120V Outlets (general use)",
+    "runningWatts": 100,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false
+  },
+  {
+    "id": "victron_3k_inverter_idle",
+    "label": "3000W Victron Inverter (Idle Draw)",
+    "runningWatts": 30,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false,
+    "hoursPerDay": 24
+  }
+]

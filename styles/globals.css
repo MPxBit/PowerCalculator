@@ -1,0 +1,1160 @@
+/* Global Styles for RV Battery Calculator - Kingstar Style */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f5f5f5;
+  min-height: 100vh;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Page Container */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+  background: white;
+}
+
+/* Home Page */
+.home-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.hero-section {
+  text-align: center;
+  background: white;
+  padding: 60px 40px;
+  margin-bottom: 40px;
+  border: 1px solid #e0e0e0;
+}
+
+.hero-section h1 {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 1.3rem;
+  color: #666;
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+.description {
+  font-size: 1.1rem;
+  color: #777;
+  max-width: 700px;
+  margin: 0 auto 40px;
+  line-height: 1.8;
+}
+
+.start-button {
+  display: inline-block;
+  background: #333;
+  color: white;
+  padding: 14px 40px;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+  border: none;
+  cursor: pointer;
+}
+
+.start-button:hover {
+  background: #555;
+}
+
+.info-section {
+  background: white;
+  padding: 40px;
+  border: 1px solid #e0e0e0;
+}
+
+.info-section h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 40px;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.step {
+  text-align: center;
+}
+
+.step-number {
+  width: 50px;
+  height: 50px;
+  background: #333;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin: 0 auto 20px;
+}
+
+.step h3 {
+  color: #333;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.step p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+/* Page Header */
+.page-header {
+  padding: 30px 0;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.page-header h1 {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.progress-indicator {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  align-items: center;
+}
+
+.progress-step {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  transition: all 0.3s;
+  font-size: 1rem;
+}
+
+.progress-step.active {
+  background: #333;
+  color: white;
+}
+
+/* Forms */
+.appliance-selector,
+.usage-form,
+.battery-form,
+.solar-form,
+.charging-form {
+  background: white;
+  padding: 30px;
+  margin-bottom: 30px;
+  border: 1px solid #e0e0e0;
+}
+
+.form-title {
+  color: #333;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.form-subtitle {
+  color: #666;
+  margin-bottom: 30px;
+  font-size: 1rem;
+}
+
+/* Appliance List */
+.appliance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.appliance-item {
+  padding: 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  transition: all 0.2s;
+  background: white;
+}
+
+.appliance-item:hover {
+  border-color: #999;
+}
+
+.appliance-item.selected {
+  border-color: #333;
+  background: #fafafa;
+}
+
+.appliance-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.appliance-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  margin-top: 2px;
+  accent-color: #333;
+}
+
+.appliance-label {
+  flex: 1;
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.wattage-info {
+  display: block;
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: normal;
+  margin-top: 4px;
+}
+
+.appliance-usage-fields {
+  margin-top: 15px;
+  margin-left: 32px;
+  padding-top: 15px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.usage-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.usage-field label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.quantity-input {
+  margin-top: 15px;
+  margin-left: 32px;
+}
+
+.quantity-input label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: #666;
+}
+
+.quantity-field,
+.hours-input {
+  width: 120px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.quantity-field:focus,
+.hours-input:focus {
+  outline: none;
+  border-color: #333;
+}
+
+/* Usage Form */
+.usage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.usage-item {
+  padding: 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  background: #fafafa;
+}
+
+.usage-header h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.usage-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.field-group label {
+  font-weight: 500;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.duty-cycle-slider {
+  width: 100%;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.duty-cycle-hint {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+/* Battery Form */
+.battery-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.battery-info {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 25px;
+}
+
+.info-item {
+  margin: 8px 0;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.info-item strong {
+  color: #333;
+  margin-right: 8px;
+  font-weight: 600;
+}
+
+.battery-preview {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.preview-item {
+  margin: 10px 0;
+}
+
+.preview-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.preview-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.preview-note {
+  font-size: 0.85rem;
+  color: #999;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+/* Solar Preview */
+.solar-preview {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.solar-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.solar-panel-slider {
+  width: 100%;
+  margin: 15px 0 5px 0;
+  cursor: pointer;
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+/* Solar Impact Grid */
+.solar-impact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.impact-item {
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.impact-item.highlight {
+  background: #333;
+  color: white;
+  border: none;
+}
+
+.impact-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.impact-item.highlight .impact-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.impact-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.impact-item.highlight .impact-value {
+  color: white;
+}
+
+.impact-value.large {
+  font-size: 2.5rem;
+}
+
+.impact-note {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 8px;
+}
+
+.impact-item.highlight .impact-note {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Checkbox Label */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.checkbox-input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #333;
+}
+
+/* Select Inputs */
+.sun-condition-select,
+.orion-select,
+.battery-count-input,
+.solar-watts-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  margin-top: 8px;
+  background: white;
+}
+
+.sun-condition-select,
+.orion-select {
+  cursor: pointer;
+}
+
+.sun-condition-select:focus,
+.orion-select:focus,
+.battery-count-input:focus,
+.solar-watts-input:focus {
+  outline: none;
+  border-color: #333;
+}
+
+.input-unit {
+  margin-left: 8px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.efficiency-slider,
+.reserve-slider {
+  width: 100%;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.field-hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+/* Results Card */
+.results-card {
+  background: white;
+  padding: 40px;
+  margin-bottom: 30px;
+  border: 1px solid #e0e0e0;
+}
+
+.results-title {
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 2rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.results-section {
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.results-section:last-of-type {
+  border-bottom: none;
+}
+
+.section-title {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.result-item {
+  padding: 20px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.result-item.highlight {
+  background: #333;
+  color: white;
+  border: none;
+}
+
+.result-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.result-item.highlight .result-label {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.result-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.result-item.highlight .result-value {
+  color: white;
+}
+
+.result-value.large {
+  font-size: 2.5rem;
+}
+
+.result-note {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 8px;
+}
+
+.result-item.highlight .result-note {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.results-notes {
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.results-notes h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.results-notes ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.results-notes li {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  color: #555;
+  line-height: 1.7;
+}
+
+.results-notes li:last-child {
+  border-bottom: none;
+}
+
+.results-notes li strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.warning-box {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 4px;
+  padding: 15px;
+  margin-top: 20px;
+  color: #856404;
+}
+
+.warning-box strong {
+  color: #856404;
+  font-weight: 600;
+}
+
+.success-box {
+  background: #d4edda;
+  border: 2px solid #28a745;
+  border-radius: 4px;
+  padding: 15px;
+  margin-top: 20px;
+  color: #155724;
+}
+
+.success-box strong {
+  color: #155724;
+  font-weight: 600;
+}
+
+/* Buttons */
+.page-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.button {
+  padding: 12px 30px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.button.primary {
+  background: #333;
+  color: white;
+}
+
+.button.primary:hover {
+  background: #555;
+}
+
+.button.secondary {
+  background: white;
+  color: #333;
+  border: 2px solid #333;
+}
+
+.button.secondary:hover {
+  background: #f5f5f5;
+}
+
+/* Idle Draw Accordion */
+.idle-draw-accordion {
+  margin-bottom: 30px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: white;
+}
+
+.accordion-header {
+  width: 100%;
+  padding: 20px;
+  background: #f9f9f9;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.accordion-header:hover {
+  background: #f0f0f0;
+}
+
+.accordion-title {
+  flex: 1;
+  text-align: left;
+}
+
+.accordion-icon {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #666;
+  width: 30px;
+  text-align: center;
+}
+
+.accordion-content {
+  padding: 20px;
+}
+
+.accordion-description {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+/* Summary Card */
+.summary-card {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 25px;
+  margin-bottom: 30px;
+}
+
+.summary-title {
+  color: #333;
+  margin-bottom: 20px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.summary-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-label {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Error Message */
+.error-message {
+  background: #fee;
+  border: 2px solid #fcc;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.error-message p {
+  color: #c33;
+  margin-bottom: 15px;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 40px 20px;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .page-container {
+    padding: 15px;
+  }
+
+  .appliance-selector,
+  .usage-form,
+  .battery-form,
+  .solar-form,
+  .charging-form,
+  .results-card {
+    padding: 20px;
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-actions {
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-section h1 {
+    font-size: 1.5rem;
+  }
+
+  .form-title {
+    font-size: 1.2rem;
+  }
+
+  .result-value {
+    font-size: 1.4rem;
+  }
+
+  .result-value.large {
+    font-size: 2rem;
+  }
+}
+
+/* Single Page Layout */
+.single-page-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.single-page-container .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.two-column-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.left-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Power Requirements Card */
+.power-requirements-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.power-requirements-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.power-item {
+  text-align: center;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.power-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.power-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Solar Summary Row */
+.solar-summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.solar-summary-item {
+  text-align: center;
+}
+
+.solar-summary-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.solar-summary-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Sun Condition Toggle */
+.sun-condition-toggle-group {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.toggle-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #333;
+}
+
+.toggle-switch {
+  display: flex;
+  gap: 10px;
+}
+
+.toggle-button {
+  flex: 1;
+  padding: 12px 20px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.toggle-button:hover {
+  border-color: #333;
+  background: #f9f9f9;
+}
+
+.toggle-button.active {
+  background: #333;
+  color: white;
+  border-color: #333;
+}
+
+/* Solar Slider Section */
+.solar-slider-section {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.solar-slider-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Impact Metrics */
+.impact-metrics-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+/* Battery Details */
+.battery-details-section {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 20px;
+}
+
+.battery-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.battery-detail-item {
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.battery-detail-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.battery-detail-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.battery-detail-note {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 5px;
+}
+
+/* No Results Message */
+.no-results-message {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 40px;
+  text-align: center;
+  color: #666;
+}
+
+.reset-button {
+  margin-left: auto;
+}
+
+/* Responsive for Single Page */
+@media (max-width: 1200px) {
+  .two-column-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .power-requirements-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .solar-summary-row {
+    grid-template-columns: 1fr;
+  }
+}

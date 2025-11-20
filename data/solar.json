@@ -1,0 +1,9 @@
+{
+  "solarWatts": 660,
+  "solarLabel": "660W Zamp Solar + Victron SmartSolar MPPT 100/50",
+  "sunHours": {
+    "sunny": 5.5,
+    "overcast": 2.0
+  }
+}
+
