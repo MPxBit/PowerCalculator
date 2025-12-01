@@ -3,7 +3,7 @@
 import { calculateBatteryRequirements } from '../lib/calculations';
 import { useState, useEffect } from 'react';
 
-export default function SummaryCard({ selectedAppliances, usageData, solarConfig, chargingConfig }) {
+export default function SummaryCard({ selectedAppliances, usageData, solarConfig, batteryConfig, chargingConfig }) {
   const [summary, setSummary] = useState(null);
 
   useEffect(() => {
@@ -33,6 +33,7 @@ export default function SummaryCard({ selectedAppliances, usageData, solarConfig
       const formData = {
         selectedAppliances: appliancesWithUsage,
         solarConfig: solarConfig || {},
+        batteryConfig: batteryConfig || {},
         chargingConfig: chargingConfig || {}
       };
 
@@ -42,7 +43,7 @@ export default function SummaryCard({ selectedAppliances, usageData, solarConfig
       console.error('Error calculating summary:', e);
       setSummary(null);
     }
-  }, [selectedAppliances, usageData, solarConfig, chargingConfig]);
+  }, [selectedAppliances, usageData, solarConfig, batteryConfig, chargingConfig]);
 
   if (!summary) return null;
 
@@ -50,19 +51,9 @@ export default function SummaryCard({ selectedAppliances, usageData, solarConfig
     <div className="summary-card">
       <h3 className="summary-title">Summary</h3>
       <div className="summary-items">
-        <div className="summary-item">
-          <span className="summary-label">Batteries Needed:</span>
-          <span className="summary-value">{summary.batteriesNeeded}</span>
-        </div>
-        {summary.requiredSolarWatts > 0 && (
+        {summary.hasGenerator && (
           <div className="summary-item">
-            <span className="summary-label">Solar Required:</span>
-            <span className="summary-value">{summary.requiredSolarWatts}W</span>
-          </div>
-        )}
-        {summary.generatorHoursPerDay > 0 && summary.hasGenerator && (
-          <div className="summary-item">
-            <span className="summary-label">Generator Hours/Day:</span>
+            <span className="summary-label">Generator Runtime:</span>
             <span className="summary-value">{summary.generatorHoursPerDay}h</span>
           </div>
         )}

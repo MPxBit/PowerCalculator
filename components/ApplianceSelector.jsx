@@ -24,6 +24,23 @@ export default function ApplianceSelector({ selectedAppliances = [], usageData =
   // Separate idle draw appliances from regular appliances
   const idleDrawAppliances = appliancesData.filter(a => IDLE_DRAW_IDS.includes(a.id));
   const regularAppliances = appliancesData.filter(a => !IDLE_DRAW_IDS.includes(a.id));
+  
+  // Group regular appliances by category
+  const categoryOrder = ['Climate Control', 'Cooking', 'Lighting', 'Electronics'];
+  const appliancesByCategory = regularAppliances.reduce((acc, appliance) => {
+    const category = appliance.category || 'Other';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(appliance);
+    return acc;
+  }, {});
+  
+  // Sort categories according to categoryOrder, then add any remaining categories
+  const sortedCategories = [
+    ...categoryOrder.filter(cat => appliancesByCategory[cat]),
+    ...Object.keys(appliancesByCategory).filter(cat => !categoryOrder.includes(cat))
+  ];
 
   const [selections, setSelections] = useState(() => {
     // Initialize from props or preselect idle draw items
@@ -109,6 +126,41 @@ export default function ApplianceSelector({ selectedAppliances = [], usageData =
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Reset internal state when parent resets (selectedAppliances and usageData become empty)
+  // Only reset if our internal state has non-idle-draw items selected
+  useEffect(() => {
+    if (selectedAppliances.length === 0 && Object.keys(usageData).length === 0) {
+      // Check if we have any non-idle-draw items selected
+      const hasNonIdleDrawSelected = Object.keys(selections).some(id => 
+        selections[id]?.selected && !IDLE_DRAW_IDS.includes(id)
+      );
+      
+      if (hasNonIdleDrawSelected) {
+        // Parent has been reset, reset our internal state to only idle draw items
+        const resetSelections = {};
+        IDLE_DRAW_IDS.forEach(id => {
+          resetSelections[id] = {
+            selected: true,
+            quantity: 1
+          };
+        });
+        setSelections(resetSelections);
+        
+        const resetUsage = {};
+        IDLE_DRAW_IDS.forEach(id => {
+          const appliance = appliancesData.find(a => a.id === id);
+          if (appliance) {
+            resetUsage[id] = {
+              hoursPerDay: 24,
+              dutyCycle: appliance.defaultDutyCycle || 1.0
+            };
+          }
+        });
+        setUsage(resetUsage);
+      }
+    }
+  }, [selectedAppliances, usageData, selections]);
 
   useEffect(() => {
     debugLogger.log('ApplianceSelector', 'useEffect: selections changed', {
@@ -243,9 +295,12 @@ export default function ApplianceSelector({ selectedAppliances = [], usageData =
         onDutyCycleChange={handleDutyCycleChange}
       />
       
-      {/* Regular Appliances */}
-      <div className="appliance-list">
-        {regularAppliances.map(appliance => {
+      {/* Regular Appliances by Category */}
+      {sortedCategories.map(category => (
+        <div key={category} className="appliance-category">
+          <h3 className="category-header">{category}</h3>
+          <div className="appliance-list">
+            {appliancesByCategory[category].map(appliance => {
           const isSelected = selections[appliance.id]?.selected || false;
           const quantity = selections[appliance.id]?.quantity || 1;
           const defaultHours = appliance.hoursPerDay || 
@@ -319,7 +374,7 @@ export default function ApplianceSelector({ selectedAppliances = [], usageData =
                         <span className="duty-cycle-hint">
                           {appliance.id.includes('refrigerator') 
                             ? 'Refrigerators cycle on/off. Default: 40%'
-                            : 'AC units cycle on/off. Default: 60%'}
+                            : 'Furnaces and AC units cycle on/off. Default: 60%'}
                         </span>
                       </label>
                     </div>
@@ -328,8 +383,10 @@ export default function ApplianceSelector({ selectedAppliances = [], usageData =
               )}
             </div>
           );
-        })}
-      </div>
+            })}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

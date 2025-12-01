@@ -2,15 +2,18 @@
   {
     "id": "ac_wall_10k",
     "label": "10k BTU Wall Mount Air Conditioner",
+    "category": "Climate Control",
     "runningWatts": 1000,
     "startingWatts": 2000,
     "defaultDutyCycle": 0.6,
     "hasQuantity": false,
-    "needsDutyCycle": true
+    "needsDutyCycle": true,
+    "hoursPerDay": 6
   },
   {
     "id": "conture_airfry_mw",
     "label": "Conture Convection/Air Fryer/Microwave",
+    "category": "Cooking",
     "runningWatts": 1500,
     "startingWatts": 0,
     "defaultDutyCycle": 1.0,
@@ -18,8 +21,20 @@
     "needsDutyCycle": false
   },
   {
+    "id": "coffee_maker",
+    "label": "Coffee Maker",
+    "category": "Cooking",
+    "runningWatts": 1000,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false,
+    "hoursPerDay": 0.2
+  },
+  {
     "id": "true_induction_single",
     "label": "Single Burner True Induction Cooktop",
+    "category": "Cooking",
     "runningWatts": 1800,
     "startingWatts": 0,
     "defaultDutyCycle": 1.0,
@@ -29,11 +44,13 @@
   {
     "id": "truma_combi",
     "label": "Truma Combi Eco Plus Furnace/Water Heater",
-    "runningWatts": 300,
+    "category": "Climate Control",
+    "runningWatts": 1080,
     "startingWatts": 0,
-    "defaultDutyCycle": 1.0,
+    "defaultDutyCycle": 0.4,
     "hasQuantity": false,
-    "needsDutyCycle": false,
+    "needsDutyCycle": true,
+    "hoursPerDay": 6,
     "notes": "Electrical draw is fan + electronics. Propane handles the heat load."
   },
   {
@@ -77,6 +94,7 @@
   {
     "id": "maxxfan_7500k",
     "label": "MaxxFan Deluxe (00-07500K)",
+    "category": "Climate Control",
     "runningWatts": 50,
     "startingWatts": 0,
     "defaultDutyCycle": 1.0,
@@ -87,6 +105,7 @@
   {
     "id": "porch_light",
     "label": "Exterior Porch Light",
+    "category": "Lighting",
     "runningWatts": 5,
     "startingWatts": 0,
     "defaultDutyCycle": 1.0,
@@ -96,6 +115,7 @@
   {
     "id": "side_lights",
     "label": "3 Amber/White Side LED Lights",
+    "category": "Lighting",
     "runningWatts": 9,
     "startingWatts": 0,
     "defaultDutyCycle": 1.0,
@@ -105,6 +125,7 @@
   {
     "id": "interior_leds",
     "label": "8 Interior LED Lights",
+    "category": "Lighting",
     "runningWatts": 24,
     "startingWatts": 0,
     "defaultDutyCycle": 1.0,
@@ -114,6 +135,7 @@
   {
     "id": "usb_outlets",
     "label": "Multiple USB Charging Outlets",
+    "category": "Electronics",
     "runningWatts": 20,
     "startingWatts": 0,
     "defaultDutyCycle": 1.0,
@@ -123,11 +145,56 @@
   {
     "id": "ac_outlets",
     "label": "120V Outlets (general use)",
+    "category": "Electronics",
     "runningWatts": 100,
     "startingWatts": 0,
     "defaultDutyCycle": 1.0,
     "hasQuantity": false,
     "needsDutyCycle": false
+  },
+  {
+    "id": "laptop",
+    "label": "Laptop",
+    "category": "Electronics",
+    "runningWatts": 60,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": true,
+    "needsDutyCycle": false,
+    "hoursPerDay": 4
+  },
+  {
+    "id": "ipad",
+    "label": "iPad",
+    "category": "Electronics",
+    "runningWatts": 15,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false,
+    "hoursPerDay": 1
+  },
+  {
+    "id": "phone",
+    "label": "Phone",
+    "category": "Electronics",
+    "runningWatts": 8,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false,
+    "hoursPerDay": 1
+  },
+  {
+    "id": "tv",
+    "label": "TV",
+    "category": "Electronics",
+    "runningWatts": 100,
+    "startingWatts": 0,
+    "defaultDutyCycle": 1.0,
+    "hasQuantity": false,
+    "needsDutyCycle": false,
+    "hoursPerDay": 3
   },
   {
     "id": "victron_3k_inverter_idle",

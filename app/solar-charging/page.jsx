@@ -3,15 +3,20 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import SolarForm from '../../components/SolarForm';
+import BatteryForm from '../../components/BatteryForm';
 import ChargingForm from '../../components/ChargingForm';
 import SummaryCard from '../../components/SummaryCard';
+import { calculateBatteryRequirements } from '../../lib/calculations';
+import { calculateBatteryRequirements } from '../../lib/calculations';
 
 export default function SolarChargingPage() {
   const router = useRouter();
   const [solarConfig, setSolarConfig] = useState({});
+  const [batteryConfig, setBatteryConfig] = useState({});
   const [chargingConfig, setChargingConfig] = useState({});
   const [selectedAppliances, setSelectedAppliances] = useState([]);
   const [usageData, setUsageData] = useState({});
+  const [finalEnergyDeficitAh, setFinalEnergyDeficitAh] = useState(0);
 
   useEffect(() => {
     // Load solar config from localStorage
@@ -22,6 +27,17 @@ export default function SolarChargingPage() {
         setSolarConfig(parsed);
       } catch (e) {
         console.error('Error loading saved solar config:', e);
+      }
+    }
+
+    // Load battery config from localStorage
+    const savedBattery = localStorage.getItem('rvCalculator_batteryConfig');
+    if (savedBattery) {
+      try {
+        const parsed = JSON.parse(savedBattery);
+        setBatteryConfig(parsed);
+      } catch (e) {
+        console.error('Error loading saved battery config:', e);
       }
     }
 
@@ -60,10 +76,53 @@ export default function SolarChargingPage() {
     localStorage.setItem('rvCalculator_solarConfig', JSON.stringify(config));
   };
 
+  const handleBatteryChange = (config) => {
+    setBatteryConfig(config);
+    localStorage.setItem('rvCalculator_batteryConfig', JSON.stringify(config));
+  };
+
   const handleChargingChange = (config) => {
     setChargingConfig(config);
     localStorage.setItem('rvCalculator_chargingConfig', JSON.stringify(config));
   };
+
+  // Calculate deficit for suggestions
+  useEffect(() => {
+    if (!selectedAppliances || selectedAppliances.length === 0) {
+      setFinalEnergyDeficitAh(0);
+      return;
+    }
+
+    try {
+      const appliancesWithUsage = selectedAppliances.map(item => {
+        const defaultHours = item.appliance.hoursPerDay || 
+                             (item.appliance.needsDutyCycle ? 24 : 1);
+        const usageInfo = usageData[item.appliance.id] || {
+          hoursPerDay: defaultHours,
+          dutyCycle: item.appliance.defaultDutyCycle || 1.0
+        };
+        return {
+          appliance: item.appliance,
+          quantity: item.quantity || 1,
+          hoursPerDay: usageInfo.hoursPerDay,
+          dutyCycle: usageInfo.dutyCycle
+        };
+      });
+
+      const formData = {
+        selectedAppliances: appliancesWithUsage,
+        solarConfig: solarConfig || {},
+        batteryConfig: batteryConfig || {},
+        chargingConfig: chargingConfig || {}
+      };
+
+      const results = calculateBatteryRequirements(formData);
+      setFinalEnergyDeficitAh(results.finalEnergyDeficitAh || 0);
+    } catch (e) {
+      console.error('Error calculating deficit:', e);
+      setFinalEnergyDeficitAh(0);
+    }
+  }, [selectedAppliances, usageData, solarConfig, batteryConfig, chargingConfig]);
 
   const handleNext = () => {
     router.push('/results');
@@ -84,9 +143,24 @@ export default function SolarChargingPage() {
         </div>
       </div>
 
+      <SummaryCard
+        selectedAppliances={selectedAppliances}
+        usageData={usageData}
+        solarConfig={solarConfig}
+        batteryConfig={batteryConfig}
+        chargingConfig={chargingConfig}
+      />
+
       <SolarForm
         solarConfig={solarConfig}
         onConfigChange={handleSolarChange}
+        finalEnergyDeficitAh={finalEnergyDeficitAh}
+      />
+
+      <BatteryForm
+        batteryConfig={batteryConfig}
+        onConfigChange={handleBatteryChange}
+        finalEnergyDeficitAh={finalEnergyDeficitAh}
       />
 
       <ChargingForm
@@ -98,6 +172,7 @@ export default function SolarChargingPage() {
         selectedAppliances={selectedAppliances}
         usageData={usageData}
         solarConfig={solarConfig}
+        batteryConfig={batteryConfig}
         chargingConfig={chargingConfig}
       />
 

@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import batteryData from '../data/battery.json';
+import { getDeficitAfterAddingBattery } from '../lib/calculations';
 
-export default function BatteryForm({ batteryConfig = {}, onConfigChange }) {
+export default function BatteryForm({ batteryConfig = {}, onConfigChange, finalEnergyDeficitAh = 0 }) {
   const [config, setConfig] = useState(() => ({
     batteryCount: batteryConfig.batteryCount || 1,
     inverterEfficiency: batteryConfig.inverterEfficiency || 0.9,
@@ -22,7 +23,7 @@ export default function BatteryForm({ batteryConfig = {}, onConfigChange }) {
   }, [config]);
 
   const handleBatteryCountChange = (count) => {
-    const cnt = Math.max(1, Math.min(10, parseInt(count) || 1));
+    const cnt = Math.max(1, Math.min(3, parseInt(count) || 1));
     setConfig(prev => ({
       ...prev,
       batteryCount: cnt
@@ -39,6 +40,31 @@ export default function BatteryForm({ batteryConfig = {}, onConfigChange }) {
 
   const totalUsableAh = config.batteryCount * batteryData.usableAh;
   const totalAh = config.batteryCount * batteryData.totalAh;
+
+  // Calculate which buttons would help solve the deficit
+  const getButtonSuggestion = (count) => {
+    if (finalEnergyDeficitAh <= 0) return null; // No deficit, no suggestions
+    
+    // If this button is already selected, don't suggest it
+    if (config.batteryCount === count) return null;
+    
+    // Can't suggest if trying to go to a lower count
+    if (count <= config.batteryCount) return null;
+    
+    // Calculate how many batteries we're adding
+    const batteriesToAdd = count - config.batteryCount;
+    const additionalCapacity = batteriesToAdd * batteryData.usableAh;
+    const deficitAfterAdding = finalEnergyDeficitAh - additionalCapacity;
+    
+    if (deficitAfterAdding <= 0) {
+      return { type: 'solves', message: 'This solves your deficit' };
+    } else {
+      return { 
+        type: 'helps', 
+        message: `Add this: Deficit becomes ${Math.abs(deficitAfterAdding).toFixed(1)} Ah` 
+      };
+    }
+  };
 
   return (
     <div className="battery-form">
@@ -59,19 +85,28 @@ export default function BatteryForm({ batteryConfig = {}, onConfigChange }) {
 
       <div className="battery-fields">
         <div className="field-group">
-          <label>
-            Number of Batteries:
-            <input
-              type="number"
-              min="1"
-              max="10"
-              value={config.batteryCount}
-              onChange={(e) => handleBatteryCountChange(e.target.value)}
-              className="battery-count-input"
-            />
-          </label>
+          <label className="field-label">Number of 460Ah Epoch Lithium Batteries:</label>
+          <div className="toggle-button-group">
+            {[1, 2, 3].map((count) => {
+              const suggestion = getButtonSuggestion(count);
+              const suggestionClass = suggestion?.type === 'solves' ? 'solves-deficit' : 
+                                     suggestion?.type === 'helps' ? 'suggested' : '';
+              
+              return (
+                <button
+                  key={count}
+                  type="button"
+                  className={`toggle-button ${config.batteryCount === count ? 'active' : ''} ${suggestionClass}`}
+                  onClick={() => handleBatteryCountChange(count)}
+                  data-tooltip={suggestion?.message || ''}
+                >
+                  {count} {count === 1 ? 'Battery' : 'Batteries'}
+                </button>
+              );
+            })}
+          </div>
           <p className="field-hint">
-            Select how many Epoch 12V 460Ah batteries you want to use
+            Select the number of Epoch 12V 460Ah batteries (max 3)
           </p>
         </div>
 

@@ -1,13 +1,16 @@
 'use client';
 
-import solarData from '../data/solar.json';
+import regionsData from '../data/regions.json';
+import { getMinSolutionSuggestion, getPeakSunHours } from '../lib/calculations';
 
 export default function ResultsCard({ 
   results, 
   solarPanels = 0, 
-  sunCondition = 'sunny',
+  region = 'desert_southwest',
+  season = 'annual',
   onSolarPanelsChange,
-  onSunConditionChange 
+  onRegionChange,
+  onSeasonChange 
 }) {
   if (!results) {
     return (
@@ -22,8 +25,9 @@ export default function ResultsCard({
     startingWatts,
     dailyAmpHours,
     solarAh,
-    energyDeficitAh,
-    batteriesNeeded,
+    energyDeficitAfterSolar,
+    finalEnergyDeficitAh,
+    batteryCount,
     batteryBankTotalAh,
     batteryBankUsableAh,
     requiredSolarWatts,
@@ -32,10 +36,12 @@ export default function ResultsCard({
     systemVoltage,
     usableAhPerBattery,
     hasGenerator,
-    orionAmps
+    orionAmps,
+    solarWatts
   } = results;
 
-  const currentSolarWatts = solarPanels * 110;
+  const currentSolarWatts = solarWatts || (solarPanels * 110);
+  const seasons = ['winter', 'spring', 'summer', 'fall', 'annual'];
 
   return (
     <div className="results-card">
@@ -89,21 +95,38 @@ export default function ResultsCard({
             </p>
           </div>
 
-          {solarPanels > 0 && (
-            <div className="field-group">
-              <label>
-                Sun Conditions:
-                <select
-                  value={sunCondition}
-                  onChange={(e) => onSunConditionChange && onSunConditionChange(e.target.value)}
-                  className="sun-condition-select"
-                >
-                  <option value="sunny">Sunny Day ({solarData.sunHours.sunny}h sun hours)</option>
-                  <option value="overcast">Overcast Day ({solarData.sunHours.overcast}h sun hours)</option>
-                </select>
-              </label>
-            </div>
-          )}
+          <div className="field-group">
+            <label>
+              Region:
+              <select
+                value={region}
+                onChange={(e) => onRegionChange && onRegionChange(e.target.value)}
+                className="region-select"
+              >
+                {Object.entries(regionsData).map(([key, regionData]) => (
+                  <option key={key} value={key}>{regionData.label}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="field-group">
+            <label>
+              Season:
+              <select
+                value={season}
+                onChange={(e) => onSeasonChange && onSeasonChange(e.target.value)}
+                className="season-select"
+              >
+                {seasons.map((s) => (
+                  <option key={s} value={s}>
+                    {s.charAt(0).toUpperCase() + s.slice(1)} 
+                    ({getPeakSunHours(region, s).toFixed(1)}h peak sun hours)
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
 
           {solarPanels > 0 && (
             <div className="solar-preview">
@@ -115,30 +138,45 @@ export default function ResultsCard({
                 <div className="preview-label">Daily Solar Contribution:</div>
                 <div className="preview-value">{solarAh.toLocaleString()} Ah</div>
                 <div className="preview-note">
-                  {currentSolarWatts}W × {solarData.sunHours[sunCondition]}h ÷ 12V = {Math.round(solarAh)} Ah
+                  {currentSolarWatts}W × {getPeakSunHours(region, season).toFixed(1)}h ÷ 12V = {Math.round(solarAh)} Ah
                 </div>
-              </div>
-              <div className="preview-item">
-                <div className="preview-label">Energy Deficit After Solar:</div>
-                <div className="preview-value">{energyDeficitAh.toLocaleString()} Ah</div>
-                <div className="preview-note">Must come from batteries/charging</div>
               </div>
             </div>
           )}
 
           {/* Impact Metrics - Update in real-time with solar */}
           <div className="solar-impact-grid">
-            <div className="impact-item highlight">
-              <div className="impact-label">Batteries Needed</div>
-              <div className="impact-value large">{batteriesNeeded}</div>
-              <div className="impact-note">Epoch 12V 460Ah LiFePO₄</div>
-            </div>
+            {(() => {
+              const suggestion = finalEnergyDeficitAh > 0 
+                ? getMinSolutionSuggestion(
+                    finalEnergyDeficitAh,
+                    solarWatts || 0,
+                    batteryCount || 1,
+                    region,
+                    season
+                  )
+                : null;
+              
+              return (
+                <div 
+                  className={`impact-item ${finalEnergyDeficitAh > 0 ? 'deficit' : 'charge'}`}
+                  data-tooltip={suggestion?.message || ''}
+                >
+                  <div className="impact-label">{finalEnergyDeficitAh > 0 ? 'Deficit' : 'Charge'}</div>
+                  <div className="impact-value large">{Math.abs(finalEnergyDeficitAh).toLocaleString()} Ah</div>
+                  <div className="impact-note">After solar & batteries - Used for all charging calculations</div>
+                </div>
+              );
+            })()}
 
-            {hasGenerator && generatorHoursPerDay > 0 && (
+            {hasGenerator && (
               <div className="impact-item highlight">
-                <div className="impact-label">Generator Run Time/Day</div>
+                <div className="impact-label">Generator Runtime</div>
                 <div className="impact-value large">{generatorHoursPerDay.toLocaleString()}h</div>
                 <div className="impact-note">Honda EU3200i @ 120A</div>
+                {results.chargeAmountNeededTo100 > 0 && (
+                  <div className="impact-note-small">Charge {results.chargeAmountNeededTo100.toLocaleString()} Ah to 100%</div>
+                )}
               </div>
             )}
 
@@ -147,6 +185,9 @@ export default function ResultsCard({
                 <div className="impact-label">Drive Time to 100%</div>
                 <div className="impact-value large">{driveHoursToFull.toLocaleString()}h</div>
                 <div className="impact-note">Orion XS @ {orionAmps}A</div>
+                {results.chargeAmountNeededTo100 > 0 && (
+                  <div className="impact-note-small">Charge {results.chargeAmountNeededTo100.toLocaleString()} Ah to 100%</div>
+                )}
               </div>
             )}
           </div>
@@ -169,18 +210,19 @@ export default function ResultsCard({
           </div>
         </div>
 
-        {batteryBankUsableAh < energyDeficitAh && (
+        {finalEnergyDeficitAh > 0 && (
           <div className="warning-box">
-            <strong>⚠️ Warning:</strong> Your recommended battery bank ({batteryBankUsableAh.toLocaleString()} Ah usable) 
-            may be insufficient for your daily needs ({energyDeficitAh.toLocaleString()} Ah). 
-            Consider adding more batteries, solar, or charging capacity.
+            <strong>⚠️ Note:</strong> You have a remaining energy deficit of {finalEnergyDeficitAh.toLocaleString()} Ah 
+            after solar ({solarAh.toLocaleString()} Ah) and batteries ({batteryBankUsableAh.toLocaleString()} Ah usable). 
+            This deficit must be covered by charging sources (generator, DC-DC, or shore power).
           </div>
         )}
 
-        {batteryBankUsableAh >= energyDeficitAh && (
+        {finalEnergyDeficitAh <= 0 && (
           <div className="success-box">
-            <strong>✓ Good:</strong> Your recommended battery bank ({batteryBankUsableAh.toLocaleString()} Ah usable) 
-            can meet your daily energy needs ({energyDeficitAh.toLocaleString()} Ah).
+            <strong>✓ Excellent:</strong> Your solar ({solarAh.toLocaleString()} Ah) and battery capacity 
+            ({batteryBankUsableAh.toLocaleString()} Ah usable) can fully meet your daily energy needs 
+            ({dailyAmpHours.toLocaleString()} Ah).
           </div>
         )}
       </div>
@@ -229,14 +271,18 @@ export default function ResultsCard({
           {solarPanels > 0 && (
             <li>
               <strong>Solar:</strong> Solar contribution is calculated based on {solarPanels} panel(s) 
-              ({currentSolarWatts}W total) and {solarData.sunHours[sunCondition]}h sun hours. 
+              ({currentSolarWatts}W total) and {getPeakSunHours(region, season).toFixed(1)}h peak sun hours ({regionsData[region]?.label || region}, {season}). 
               Actual production may vary based on weather, shading, and panel orientation.
             </li>
           )}
-          {generatorHoursPerDay > 0 && hasGenerator && (
+          {hasGenerator && (
             <li>
-              <strong>Generator:</strong> You'll need to run your generator for {generatorHoursPerDay} hours 
-              per day to make up the energy deficit. Consider adding more batteries or solar to reduce generator use.
+              <strong>Generator:</strong> {generatorHoursPerDay > 0 ? (
+                <>You'll need to run your generator for {generatorHoursPerDay} hours 
+                per day to make up the energy deficit. Consider adding more batteries or solar to reduce generator use.</>
+              ) : (
+                <>No generator runtime needed. Your solar and battery capacity fully meet your energy needs.</>
+              )}
             </li>
           )}
           {driveHoursToFull > 0 && orionAmps > 0 && (

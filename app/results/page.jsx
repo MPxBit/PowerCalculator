@@ -11,10 +11,11 @@ export default function ResultsPage() {
   const [results, setResults] = useState(null);
   const [error, setError] = useState(null);
   const [solarPanels, setSolarPanels] = useState(0); // Number of 110W panels (added in pairs: 0, 2, 4, 6, etc.)
-  const [sunCondition, setSunCondition] = useState('sunny');
+  const [region, setRegion] = useState('desert_southwest');
+  const [season, setSeason] = useState('annual');
   const isInitialMount = useRef(true);
 
-  const calculateResults = (solarPanelCount, sunCond) => {
+  const calculateResults = (solarPanelCount, reg, seas) => {
     // Load all form data from localStorage
     const selectedAppliancesData = localStorage.getItem('rvCalculator_selectedAppliances');
     const usageData = localStorage.getItem('rvCalculator_usageData');
@@ -45,23 +46,41 @@ export default function ResultsPage() {
         };
       });
 
-      // Default charging config: 50A Orion XS and generator
-      const chargingConfig = {
+      // Load battery and charging configs from localStorage
+      const savedBattery = localStorage.getItem('rvCalculator_batteryConfig');
+      const savedCharging = localStorage.getItem('rvCalculator_chargingConfig');
+      const savedSolar = localStorage.getItem('rvCalculator_solarConfig');
+      
+      const batteryConfig = savedBattery ? JSON.parse(savedBattery) : { batteryCount: 1 };
+      const chargingConfig = savedCharging ? JSON.parse(savedCharging) : {
         orionAmps: 50,
         hasGenerator: true
       };
-
-      // Solar config based on slider
-      const solarConfig = {
-        hasSolar: solarPanelCount > 0,
-        solarWatts: solarPanelCount * 110, // 110W per panel
-        sunCondition: sunCond
-      };
+      
+      // Solar config from saved or use slider (for backward compatibility)
+      let solarConfig;
+      if (savedSolar) {
+        solarConfig = JSON.parse(savedSolar);
+        // Migrate old sunCondition to region/season if needed
+        if (solarConfig.sunCondition && !solarConfig.region) {
+          // Default to desert_southwest for old 'sunny', or use annual average
+          solarConfig.region = 'desert_southwest';
+          solarConfig.season = 'annual';
+          delete solarConfig.sunCondition;
+        }
+      } else {
+        solarConfig = {
+          solarWatts: solarPanelCount * 110, // 110W per panel (backward compat)
+          region: reg || 'desert_southwest',
+          season: seas || 'annual'
+        };
+      }
 
       // Perform calculations
       const formData = {
         selectedAppliances: appliancesWithUsage,
         solarConfig: solarConfig,
+        batteryConfig: batteryConfig,
         chargingConfig: chargingConfig
       };
 
@@ -77,16 +96,22 @@ export default function ResultsPage() {
   useEffect(() => {
     // Load saved solar panel count if available
     const savedSolar = localStorage.getItem('rvCalculator_solarPanels');
-    const savedSunCondition = localStorage.getItem('rvCalculator_sunCondition');
+    const savedSolarConfig = localStorage.getItem('rvCalculator_solarConfig');
     if (savedSolar) {
       setSolarPanels(parseInt(savedSolar) || 0);
     }
-    if (savedSunCondition) {
-      setSunCondition(savedSunCondition);
+    if (savedSolarConfig) {
+      try {
+        const solarConfig = JSON.parse(savedSolarConfig);
+        if (solarConfig.region) setRegion(solarConfig.region);
+        if (solarConfig.season) setSeason(solarConfig.season);
+      } catch (e) {
+        console.error('Error loading solar config:', e);
+      }
     }
 
     // Calculate initial results
-    calculateResults(savedSolar ? parseInt(savedSolar) || 0 : 0, savedSunCondition || 'sunny');
+    calculateResults(savedSolar ? parseInt(savedSolar) || 0 : 0, region, season);
   }, []);
 
   useEffect(() => {
@@ -96,19 +121,17 @@ export default function ResultsPage() {
       return;
     }
     
-    // Recalculate when solar panels or sun condition changes
-    calculateResults(solarPanels, sunCondition);
+    // Recalculate when solar panels, region, or season changes
+    calculateResults(solarPanels, region, season);
     localStorage.setItem('rvCalculator_solarPanels', solarPanels.toString());
-    localStorage.setItem('rvCalculator_sunCondition', sunCondition);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [solarPanels, sunCondition]);
+  }, [solarPanels, region, season]);
 
   const handleStartOver = () => {
     // Clear all localStorage data
     localStorage.removeItem('rvCalculator_selectedAppliances');
     localStorage.removeItem('rvCalculator_usageData');
     localStorage.removeItem('rvCalculator_solarPanels');
-    localStorage.removeItem('rvCalculator_sunCondition');
     router.push('/');
   };
 
@@ -145,9 +168,11 @@ export default function ResultsPage() {
         <ResultsCard 
           results={results} 
           solarPanels={solarPanels}
-          sunCondition={sunCondition}
+          region={region}
+          season={season}
           onSolarPanelsChange={setSolarPanels}
-          onSunConditionChange={setSunCondition}
+          onRegionChange={setRegion}
+          onSeasonChange={setSeason}
         />
       )}
 

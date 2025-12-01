@@ -1,0 +1,99 @@
+{
+  "desert_southwest": {
+    "label": "Desert Southwest",
+    "states": ["AZ", "NV", "CA-South", "NM", "TX-West", "UT-South", "CO-South"],
+    "icon": "/assets/regions/desert-southwest.svg",
+    "psh": {
+      "winter": 5.0,
+      "spring": 6.5,
+      "summer": 8.0,
+      "fall": 6.0,
+      "annual": 6.5
+    }
+  },
+  "southern_plains_sunbelt": {
+    "label": "Southern Plains / Sun Belt",
+    "states": ["OK", "KS", "TX-North", "AR", "MO", "TN", "MS", "AL-North", "GA-North"],
+    "icon": "/assets/regions/southern-plains.svg",
+    "psh": {
+      "winter": 4.0,
+      "spring": 5.3,
+      "summer": 6.5,
+      "fall": 5.0,
+      "annual": 5.2
+    }
+  },
+  "southeast_gulf": {
+    "label": "Southeast / Gulf Coast",
+    "states": ["FL", "GA-South", "SC-Coastal", "NC-Coastal", "AL-Coastal", "LA"],
+    "icon": "/assets/regions/southeast-gulf.svg",
+    "psh": {
+      "winter": 4.5,
+      "spring": 5.5,
+      "summer": 6.2,
+      "fall": 5.2,
+      "annual": 5.4
+    }
+  },
+  "midatlantic": {
+    "label": "Mid-Atlantic",
+    "states": ["VA", "MD", "DE", "NJ", "PA", "NY-South", "WV", "OH-East", "KY"],
+    "icon": null,
+    "psh": {
+      "winter": 3.0,
+      "spring": 4.5,
+      "summer": 5.5,
+      "fall": 4.0,
+      "annual": 4.2
+    }
+  },
+  "new_england_northern_tier": {
+    "label": "New England / Northern Tier",
+    "states": ["ME", "NH", "VT", "MA", "RI", "CT", "NY-North", "MI", "WI", "MN", "ND", "MT-West"],
+    "icon": "/assets/regions/new-england-northern-tier.svg",
+    "psh": {
+      "winter": 2.5,
+      "spring": 4.0,
+      "summer": 5.3,
+      "fall": 3.7,
+      "annual": 4.0
+    }
+  },
+  "pacific_northwest": {
+    "label": "Pacific Northwest",
+    "states": ["WA", "OR", "CA-North-Coast", "ID-West"],
+    "icon": "/assets/regions/pacific-northwest.svg",
+    "psh": {
+      "winter": 2.0,
+      "spring": 3.8,
+      "summer": 5.2,
+      "fall": 3.0,
+      "annual": 3.5
+    }
+  },
+  "mountain_west": {
+    "label": "Mountain West / Intermountain",
+    "states": ["CO", "UT-North", "ID", "WY", "MT", "NV-North"],
+    "icon": "/assets/regions/mountain-west.svg",
+    "psh": {
+      "winter": 3.5,
+      "spring": 5.0,
+      "summer": 6.7,
+      "fall": 5.0,
+      "annual": 5.1
+    }
+  },
+  "northern_pacific_coastal": {
+    "label": "Northern Pacific / Coastal California",
+    "states": ["CA-Central-Coast", "CA-North-Coast", "OR-Coast"],
+    "icon": null,
+    "psh": {
+      "winter": 3.0,
+      "spring": 4.5,
+      "summer": 5.7,
+      "fall": 4.2,
+      "annual": 4.5
+    }
+  }
+}
+

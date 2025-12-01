@@ -2,26 +2,35 @@
 
 import { useState, useEffect, useRef } from 'react';
 import ApplianceSelector from '../components/ApplianceSelector';
-import { calculateBatteryRequirements } from '../lib/calculations';
+import { calculateBatteryRequirements, getMinSolutionSuggestion, getDeficitAfterAddingSolar, getDeficitAfterAddingBattery } from '../lib/calculations';
+import batteryData from '../data/battery.json';
 import appliancesData from '../data/appliances.json';
-import solarData from '../data/solar.json';
+import regionsData from '../data/regions.json';
+import { getPeakSunHours } from '../lib/calculations';
+import RegionGrid from '../components/RegionGrid';
+import SeasonSelector from '../components/SeasonSelector';
 
 export default function HomePage() {
   const [selectedAppliances, setSelectedAppliances] = useState([]);
   const [usageData, setUsageData] = useState({});
   const [results, setResults] = useState(null);
-  const [solarPanels, setSolarPanels] = useState(0);
-  const [sunCondition, setSunCondition] = useState('sunny');
+  const [solarWatts, setSolarWatts] = useState(0); // Solar in 220W increments: 0, 220, 440, 660, 880, 1100, 1320
+  const [batteryCount, setBatteryCount] = useState(1); // Batteries: 1, 2, or 3
+  const [region, setRegion] = useState('desert_southwest');
+  const [season, setSeason] = useState('annual');
   const [hasGenerator, setHasGenerator] = useState(false);
   const [hasDCCharger, setHasDCCharger] = useState(false);
   const isInitialMount = useRef(true);
+  
+  // Solar options in 220W increments
+  const solarOptions = [220, 440, 660, 880, 1100, 1320];
 
   // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem('rvCalculator_selectedAppliances');
     const savedUsage = localStorage.getItem('rvCalculator_usageData');
-    const savedSolar = localStorage.getItem('rvCalculator_solarPanels');
-    const savedSunCondition = localStorage.getItem('rvCalculator_sunCondition');
+    const savedSolar = localStorage.getItem('rvCalculator_solarConfig');
+    const savedBattery = localStorage.getItem('rvCalculator_batteryConfig');
     
     if (saved) {
       try {
@@ -40,12 +49,31 @@ export default function HomePage() {
     }
 
     if (savedSolar) {
-      setSolarPanels(parseInt(savedSolar) || 0);
+      try {
+        const solarConfig = JSON.parse(savedSolar);
+        setSolarWatts(solarConfig.solarWatts || 0);
+        // Migrate old sunCondition to region/season if needed
+        if (solarConfig.sunCondition && !solarConfig.region) {
+          setRegion('desert_southwest');
+          setSeason('annual');
+        } else {
+          if (solarConfig.region) setRegion(solarConfig.region);
+          if (solarConfig.season) setSeason(solarConfig.season);
+        }
+      } catch (e) {
+        console.error('Error loading saved solar config:', e);
+      }
     }
 
-    if (savedSunCondition) {
-      setSunCondition(savedSunCondition);
+    if (savedBattery) {
+      try {
+        const batteryConfig = JSON.parse(savedBattery);
+        setBatteryCount(batteryConfig.batteryCount || 1);
+      } catch (e) {
+        console.error('Error loading saved battery config:', e);
+      }
     }
+
 
     const savedHasGenerator = localStorage.getItem('rvCalculator_hasGenerator');
     const savedHasDCCharger = localStorage.getItem('rvCalculator_hasDCCharger');
@@ -87,22 +115,26 @@ export default function HomePage() {
         };
       });
 
+      // Battery config
+      const batteryConfig = { batteryCount: batteryCount };
+
       // Charging config based on user selections
       const chargingConfig = {
         orionAmps: hasDCCharger ? 50 : 0,
         hasGenerator: hasGenerator
       };
 
-      // Solar config based on slider
+      // Solar config
       const solarConfig = {
-        hasSolar: solarPanels > 0,
-        solarWatts: solarPanels * 110,
-        sunCondition: sunCondition
+        solarWatts: solarWatts,
+        region: region,
+        season: season
       };
 
       const formData = {
         selectedAppliances: appliancesWithUsage,
         solarConfig: solarConfig,
+        batteryConfig: batteryConfig,
         chargingConfig: chargingConfig
       };
 
@@ -111,7 +143,7 @@ export default function HomePage() {
     } catch (e) {
       console.error('Error calculating results:', e);
     }
-  }, [selectedAppliances, usageData, solarPanels, sunCondition, hasGenerator, hasDCCharger]);
+  }, [selectedAppliances, usageData, solarWatts, batteryCount, region, season, hasGenerator, hasDCCharger]);
 
   const handleSelectionChange = (selected) => {
     setSelectedAppliances(selected);
@@ -123,14 +155,31 @@ export default function HomePage() {
     localStorage.setItem('rvCalculator_usageData', JSON.stringify(usage));
   };
 
-  const handleSolarPanelsChange = (panels) => {
-    setSolarPanels(panels);
-    localStorage.setItem('rvCalculator_solarPanels', panels.toString());
+  const handleSolarWattsToggle = (watts) => {
+    const newWatts = solarWatts === watts ? 0 : watts;
+    setSolarWatts(newWatts);
+    const solarConfig = { solarWatts: newWatts, region: region, season: season };
+    localStorage.setItem('rvCalculator_solarConfig', JSON.stringify(solarConfig));
   };
 
-  const handleSunConditionChange = (condition) => {
-    setSunCondition(condition);
-    localStorage.setItem('rvCalculator_sunCondition', condition);
+  const handleBatteryCountToggle = (count) => {
+    setBatteryCount(count);
+    const batteryConfig = { batteryCount: count };
+    localStorage.setItem('rvCalculator_batteryConfig', JSON.stringify(batteryConfig));
+  };
+
+  const handleRegionChange = (newRegion) => {
+    setRegion(newRegion);
+    // Update solar config with new region
+    const solarConfig = { solarWatts: solarWatts, region: newRegion, season: season };
+    localStorage.setItem('rvCalculator_solarConfig', JSON.stringify(solarConfig));
+  };
+
+  const handleSeasonChange = (newSeason) => {
+    setSeason(newSeason);
+    // Update solar config with new season
+    const solarConfig = { solarWatts: solarWatts, region: region, season: newSeason };
+    localStorage.setItem('rvCalculator_solarConfig', JSON.stringify(solarConfig));
   };
 
   const handleGeneratorToggle = () => {
@@ -149,21 +198,23 @@ export default function HomePage() {
     if (confirm('Are you sure you want to reset the calculator? All your selections will be cleared.')) {
       localStorage.removeItem('rvCalculator_selectedAppliances');
       localStorage.removeItem('rvCalculator_usageData');
-      localStorage.removeItem('rvCalculator_solarPanels');
-      localStorage.removeItem('rvCalculator_sunCondition');
+      localStorage.removeItem('rvCalculator_solarConfig');
+      localStorage.removeItem('rvCalculator_batteryConfig');
       localStorage.removeItem('rvCalculator_hasGenerator');
       localStorage.removeItem('rvCalculator_hasDCCharger');
       setSelectedAppliances([]);
       setUsageData({});
-      setSolarPanels(0);
-      setSunCondition('sunny');
+      setSolarWatts(0);
+      setBatteryCount(1);
+      setRegion('desert_southwest');
+      setSeason('annual');
       setHasGenerator(false);
       setHasDCCharger(false);
       setResults(null);
     }
   };
 
-  const currentSolarWatts = solarPanels * 110;
+  const currentSolarWatts = solarWatts;
 
   return (
     <div className="single-page-container">
@@ -221,64 +272,135 @@ export default function HomePage() {
                   <div className="solar-summary-label">Solar Contribution</div>
                   <div className="solar-summary-value">{results.solarAh.toLocaleString()} Ah</div>
                 </div>
-                <div className="solar-summary-item">
-                  <div className="solar-summary-label">Energy Deficit</div>
-                  <div className="solar-summary-value">{results.energyDeficitAh.toLocaleString()} Ah</div>
-                </div>
               </div>
 
-              {/* Sun Condition Toggle */}
-              <div className="sun-condition-toggle-group">
-                <label className="toggle-label">Sun Conditions:</label>
-                <div className="toggle-switch">
-                  <button
-                    className={`toggle-button ${sunCondition === 'sunny' ? 'active' : ''}`}
-                    onClick={() => handleSunConditionChange('sunny')}
-                    type="button"
-                  >
-                    Sunny ({solarData.sunHours.sunny}h)
-                  </button>
-                  <button
-                    className={`toggle-button ${sunCondition === 'overcast' ? 'active' : ''}`}
-                    onClick={() => handleSunConditionChange('overcast')}
-                    type="button"
-                  >
-                    Overcast ({solarData.sunHours.overcast}h)
-                  </button>
-                </div>
+              {/* Region Grid and Season Selectors */}
+              <div className="region-season-group">
+                <RegionGrid 
+                  selectedKey={region}
+                  onSelect={handleRegionChange}
+                />
+                <SeasonSelector
+                  regionKey={region}
+                  selectedSeason={season}
+                  onSelect={handleSeasonChange}
+                />
               </div>
 
-              {/* Solar Panel Slider */}
-              <div className="solar-slider-section">
-                <label className="solar-slider-label">
-                  Number of 110W Solar Panels: {solarPanels} ({solarPanels / 2} pairs)
-                  <input
-                    type="range"
-                    min="0"
-                    max="20"
-                    step="2"
-                    value={solarPanels}
-                    onChange={(e) => handleSolarPanelsChange(parseInt(e.target.value))}
-                    className="solar-panel-slider"
-                  />
-                  <div className="slider-labels">
-                    <span>0 panels (0W)</span>
-                    <span>10 panels (1,100W)</span>
-                    <span>20 panels (2,200W)</span>
-                  </div>
-                </label>
+              {/* Solar Panel Toggle Buttons */}
+              <div className="solar-toggle-section">
+                <label className="field-label">Number of Solar Panels (220W increments):</label>
+                <div className="toggle-button-group">
+                  {solarOptions.map((watts) => {
+                    const suggestion = results?.finalEnergyDeficitAh > 0 && solarWatts !== watts
+                      ? (() => {
+                          // Calculate deficit if we switch to this solar option
+                          const sunHours = getPeakSunHours(region, season);
+                          const currentSolarAh = solarWatts > 0 
+                            ? (solarWatts * sunHours) / 12 
+                            : 0;
+                          const newSolarAh = (watts * sunHours) / 12;
+                          const solarAhDifference = newSolarAh - currentSolarAh;
+                          const deficitAfter = results.finalEnergyDeficitAh - solarAhDifference;
+                          
+                          if (deficitAfter <= 0) {
+                            return { type: 'solves', message: 'This solves your deficit' };
+                          } else {
+                            return { 
+                              type: 'helps', 
+                              message: `Add this: Deficit becomes ${Math.abs(deficitAfter).toFixed(1)} Ah` 
+                            };
+                          }
+                        })()
+                      : null;
+                    const suggestionClass = suggestion?.type === 'solves' ? 'solves-deficit' : 
+                                           suggestion?.type === 'helps' ? 'suggested' : '';
+                    
+                    return (
+                      <button
+                        key={watts}
+                        type="button"
+                        className={`toggle-button ${solarWatts === watts ? 'active' : ''} ${suggestionClass}`}
+                        onClick={() => handleSolarWattsToggle(watts)}
+                        data-tooltip={suggestion?.message || ''}
+                      >
+                        {watts}W
+                      </button>
+                    );
+                  })}
+                </div>
                 <p className="field-hint">
-                  Add solar panels in pairs (2 panels = 220W, 4 panels = 440W, 6 panels = 660W, etc.)
+                  Select one option. Each increment represents 220W (2 panels × 110W each)
+                </p>
+              </div>
+
+              {/* Battery Toggle Buttons */}
+              <div className="battery-toggle-section">
+                <label className="field-label">Number of 460Ah Epoch Lithium Batteries:</label>
+                <div className="toggle-button-group">
+                  {[1, 2, 3].map((count) => {
+                    const suggestion = results?.finalEnergyDeficitAh > 0 && batteryCount !== count && count > batteryCount
+                      ? (() => {
+                          const deficitAfter = getDeficitAfterAddingBattery(
+                            results.finalEnergyDeficitAh,
+                            batteryCount,
+                            batteryData.usableAh
+                          );
+                          if (deficitAfter <= 0) {
+                            return { type: 'solves', message: 'This solves your deficit' };
+                          } else {
+                            return { 
+                              type: 'helps', 
+                              message: `Add this: Deficit becomes ${Math.abs(deficitAfter).toFixed(1)} Ah` 
+                            };
+                          }
+                        })()
+                      : null;
+                    const suggestionClass = suggestion?.type === 'solves' ? 'solves-deficit' : 
+                                           suggestion?.type === 'helps' ? 'suggested' : '';
+                    
+                    return (
+                      <button
+                        key={count}
+                        type="button"
+                        className={`toggle-button ${batteryCount === count ? 'active' : ''} ${suggestionClass}`}
+                        onClick={() => handleBatteryCountToggle(count)}
+                        data-tooltip={suggestion?.message || ''}
+                      >
+                        {count} {count === 1 ? 'Battery' : 'Batteries'}
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="field-hint">
+                  Select the number of Epoch 12V 460Ah batteries (max 3)
                 </p>
               </div>
 
               {/* Impact Metrics */}
               <div className="impact-metrics-section">
-                <div className="impact-item highlight">
-                  <div className="impact-label">Batteries Needed</div>
-                  <div className="impact-value large">{results.batteriesNeeded}</div>
-                  <div className="impact-note">Epoch 12V 460Ah LiFePO₄</div>
-                </div>
+                {(() => {
+                  const suggestion = results.finalEnergyDeficitAh > 0 
+                    ? getMinSolutionSuggestion(
+                        results.finalEnergyDeficitAh,
+                        solarWatts || 0,
+                        batteryCount || 1,
+                        region,
+                        season
+                      )
+                    : null;
+                  
+                  return (
+                    <div 
+                      className={`impact-item ${results.finalEnergyDeficitAh > 0 ? 'deficit' : 'charge'}`}
+                      data-tooltip={suggestion?.message || ''}
+                    >
+                      <div className="impact-label">{results.finalEnergyDeficitAh > 0 ? 'Deficit' : 'Charge'}</div>
+                      <div className="impact-value large">{Math.abs(results.finalEnergyDeficitAh).toLocaleString()} Ah</div>
+                      <div className="impact-note">After solar & batteries - Used for all charging calculations</div>
+                    </div>
+                  );
+                })()}
 
                 {/* Generator Box - Clickable */}
                 <div 
@@ -286,11 +408,14 @@ export default function HomePage() {
                   onClick={handleGeneratorToggle}
                   style={{ cursor: 'pointer' }}
                 >
-                  {hasGenerator && results.generatorHoursPerDay > 0 ? (
+                  {hasGenerator ? (
                     <>
-                      <div className="impact-label">Generator Run Time to 100%</div>
+                      <div className="impact-label">Generator Runtime</div>
                       <div className="impact-value large">{results.generatorHoursPerDay.toLocaleString()}h</div>
                       <div className="impact-note">Honda EU3200i @ 120A</div>
+                      {results.chargeAmountNeededTo100 > 0 && (
+                        <div className="impact-note-small">Charge {results.chargeAmountNeededTo100.toLocaleString()} Ah to 100%</div>
+                      )}
                     </>
                   ) : (
                     <>
@@ -311,6 +436,9 @@ export default function HomePage() {
                       <div className="impact-label">Drive Time to 100%</div>
                       <div className="impact-value large">{results.driveHoursToFull.toLocaleString()}h</div>
                       <div className="impact-note">Orion XS @ {results.orionAmps}A</div>
+                      {results.chargeAmountNeededTo100 > 0 && (
+                        <div className="impact-note-small">Charge {results.chargeAmountNeededTo100.toLocaleString()} Ah to 100%</div>
+                      )}
                     </>
                   ) : (
                     <>
@@ -324,12 +452,17 @@ export default function HomePage() {
               {/* Shore Power Charging */}
               <div className="shore-power-section">
                 <h3 className="section-title">Shore Power Charging</h3>
+                {results.chargeAmountNeededTo100 > 0 && (
+                  <div className="charge-amount-info">
+                    <strong>Charge needed to reach 100%: {results.chargeAmountNeededTo100.toLocaleString()} Ah</strong>
+                  </div>
+                )}
                 <div className="shore-power-grid">
                   {results.shorePowerHome15Hours > 0 && (
                     <div className="shore-power-item">
                       <div className="shore-power-label">120V Home Plug (15A)</div>
                       <div className="shore-power-value">{results.shorePowerHome15Hours.toLocaleString()}h</div>
-                      <div className="shore-power-note">To charge from empty to full</div>
+                      <div className="shore-power-note">To charge {results.chargeAmountNeededTo100?.toLocaleString() || 'full capacity'} Ah to 100%</div>
                     </div>
                   )}
                   
@@ -337,7 +470,7 @@ export default function HomePage() {
                     <div className="shore-power-item">
                       <div className="shore-power-label">120V Home Plug (20A)</div>
                       <div className="shore-power-value">{results.shorePowerHome20Hours.toLocaleString()}h</div>
-                      <div className="shore-power-note">To charge from empty to full</div>
+                      <div className="shore-power-note">To charge {results.chargeAmountNeededTo100?.toLocaleString() || 'full capacity'} Ah to 100%</div>
                     </div>
                   )}
                   
@@ -345,7 +478,7 @@ export default function HomePage() {
                     <div className="shore-power-item">
                       <div className="shore-power-label">Campground 30A</div>
                       <div className="shore-power-value">{results.shorePowerCampground30Hours.toLocaleString()}h</div>
-                      <div className="shore-power-note">To charge from empty to full</div>
+                      <div className="shore-power-note">To charge {results.chargeAmountNeededTo100?.toLocaleString() || 'full capacity'} Ah to 100%</div>
                     </div>
                   )}
                   
@@ -353,7 +486,7 @@ export default function HomePage() {
                     <div className="shore-power-item">
                       <div className="shore-power-label">Campground 50A</div>
                       <div className="shore-power-value">{results.shorePowerCampground50Hours.toLocaleString()}h</div>
-                      <div className="shore-power-note">To charge from empty to full</div>
+                      <div className="shore-power-note">To charge {results.chargeAmountNeededTo100?.toLocaleString() || 'full capacity'} Ah to 100%</div>
                     </div>
                   )}
                 </div>
@@ -377,17 +510,19 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {results.batteryBankUsableAh < results.energyDeficitAh && (
+                {results.finalEnergyDeficitAh > 0 && (
                   <div className="warning-box">
-                    <strong>⚠️ Warning:</strong> Your recommended battery bank ({results.batteryBankUsableAh.toLocaleString()} Ah usable) 
-                    may be insufficient for your daily needs ({results.energyDeficitAh.toLocaleString()} Ah).
+                    <strong>⚠️ Note:</strong> You have a remaining energy deficit of {results.finalEnergyDeficitAh.toLocaleString()} Ah 
+                    after solar ({results.solarAh.toLocaleString()} Ah) and batteries ({results.batteryBankUsableAh.toLocaleString()} Ah usable). 
+                    This deficit must be covered by charging sources (generator, DC-DC, or shore power).
                   </div>
                 )}
 
-                {results.batteryBankUsableAh >= results.energyDeficitAh && (
+                {results.finalEnergyDeficitAh <= 0 && (
                   <div className="success-box">
-                    <strong>✓ Good:</strong> Your recommended battery bank ({results.batteryBankUsableAh.toLocaleString()} Ah usable) 
-                    can meet your daily energy needs ({results.energyDeficitAh.toLocaleString()} Ah).
+                    <strong>✓ Excellent:</strong> Your solar ({results.solarAh.toLocaleString()} Ah) and battery capacity 
+                    ({results.batteryBankUsableAh.toLocaleString()} Ah usable) can fully meet your daily energy needs 
+                    ({results.dailyAmpHours.toLocaleString()} Ah).
                   </div>
                 )}
               </div>
